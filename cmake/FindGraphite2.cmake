@@ -1,0 +1,6 @@
+find_path(GRAPHITE2_INCLUDE_DIR graphite2/Font.h)
+find_library(GRAPHITE2_LIBRARY graphite2)
+
+include(FindPackageHandleStandardArgs)
+
+find_package_handle_standard_args(GRAPHITE2 GRAPHITE2_INCLUDE_DIR GRAPHITE2_LIBRARY)
