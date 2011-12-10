@@ -1,0 +1,2 @@
+gltext provides a text-rendering library compatible with modern (core 
+profile) OpenGL implementations.
