@@ -80,8 +80,7 @@ add_definitions(-DHAVE_OT=1)
 if(GRAPHITE2_FOUND)
   set(HB_SOURCES ${HB_SOURCES}
     harfbuzz/hb-graphite2.cc
-  )
-  set(HB_HEADERS ${HB_HEADERS}
+
     harfbuzz/hb-graphite2.h
   )
   set(HB_EXTRA_LIBS ${GRAPHITE2_LIBRARY})
@@ -90,10 +89,9 @@ endif()
 
 if(UNISCRIBE_FOUND)
   set(HB_SOURCES ${HB_SOURCES}
-    harfbuzz/hb_uniscribe.cc
-  )
-  set(HB_HEADERS ${HB_HEADERS}
-    harfbuzz/hb_uniscribe.h
+    harfbuzz/hb-uniscribe.cc
+
+    harfbuzz/hb-uniscribe.h
   )
   set(HB_EXTRA_LIBS ${UNISCRIBE_LIBRARY})
   add_definitions(-DHAVE_UNISCRIBE=1)
