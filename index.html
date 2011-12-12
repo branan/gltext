@@ -49,7 +49,7 @@
     <h2>Example Usage</h2>
 <pre>#include "gltext.hpp"
 
-#include <GL/glut.h>
+#include &ltGL/glut.h&gt
 
 gltext::Font font;
 
@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
 
     font = gltext::Font("/home/branan/projects/coredump/vfx/droid.ttf", 16, 128);
     font.setDisplaySize(300, 300);
-    font.cacheCharacters("1234567890!@#$%^&*()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,./;'[]\\<>?:\"{}|-=_+");
+    font.cacheCharacters("1234567890!@#$%^&*()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,./;'[]\\&lt&gt?:\"{}|-=_+");
 
     glutMainLoop();
 }</pre>
