@@ -68,8 +68,9 @@ public:
     ~Font();
 
     void setDisplaySize(unsigned w, unsigned h);
+    void setPenPosition(unsigned x, unsigned y);
     void cacheCharacters(std::string chars);
-    void draw(std::string text, unsigned x, unsigned y);
+    void draw(std::string text);
 private:
     FontPimpl* self;
 };

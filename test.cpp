@@ -6,7 +6,8 @@ gltext::Font font;
 
 void render(void) {
     glClear(GL_COLOR_BUFFER_BIT);
-    font.draw("Hello, World!", 0, 0);
+    font.setPenPosition(16, 16);
+    font.draw("This piece of text has a descender on the 'p'.");
     glutSwapBuffers();
 }
 
