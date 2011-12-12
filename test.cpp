@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     glutCreateWindow("gltext demo");
     glutDisplayFunc(render);
 
-    font = gltext::Font("/home/branan/projects/coredump/vfx/droid.ttf", 16);
+    font = gltext::Font("/home/branan/projects/coredump/vfx/droid.ttf", 16, 128);
     font.setDisplaySize(300, 300);
     font.cacheCharacters("1234567890!@#$%^&*()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,./;'[]\\<>?:\"{}|-=_+");
 

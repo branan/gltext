@@ -25,17 +25,43 @@
 #ifndef GLTEXT_FONT_HPP
 #define GLTEXT_FONT_HPP
 
+#include <stdexcept>
 #include <string>
 
 #define GLTEXT_CACHE_TEXTURE_SIZE 256
 
 namespace gltext {
+
+    class Exception : public std::runtime_error {
+    public:
+        Exception(std::string str) : std::runtime_error(str) {}
+    };
+
+    class FtException : public Exception {
+    public:
+        FtException() : Exception("Freetype error occured") {}
+    };
+
+    class CacheOverflowException : public Exception {
+    public:
+        CacheOverflowException() : Exception("Overflow in glyph cache") {}
+    };
+
+    class EmptyFontException : public Exception {
+    public:
+        EmptyFontException() : Exception("The request operation is not permitted on an empty Font") {}
+    };
+
+    class BadFontFormatException : public Exception {
+    public:
+        BadFontFormatException() : Exception("The font glyphs are not in an appropriate bitmap format") {}
+    };
     
 struct FontPimpl;
     
 class Font {
 public:
-    Font(std::string font_file, unsigned size, unsigned cache_size = GLTEXT_CACHE_TEXTURE_SIZE);
+    Font(std::string font_file, unsigned size, unsigned cache_w = GLTEXT_CACHE_TEXTURE_SIZE, unsigned cache_h = GLTEXT_CACHE_TEXTURE_SIZE);
     Font();
     Font(const Font&);
     Font& operator=(const Font&);
