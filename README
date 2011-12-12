@@ -1,6 +1,12 @@
 gltext provides a text-rendering library compatible with modern (core profile) OpenGL implementations.
 
-USAGE NOTES:
+CMAKE NOTES:
+
+gltext can be built as a standalone library, or integrated into your own CMake project as a subdirectory. If you use it as a subdirectory, the CMake variable GLTEXT_LIBRARIES will include gltext and its dependency libraries, and is intended to be used in your application's TARGET_LINK_LIBRARIES() command.
+
+If built as a subdirectory, gltext will disable its 'make install' targets. If you would like gltext to be installed during 'make install' (for example, if your umbrella project is a bundle of libraries, not an appication), you can set the CMake variable GLTEXT_DO_INSTALL to ON.
+
+OPENGL NOTES:
 
 gltext makes some changes to the GL state as it renders. In most applications, these states will probably be overwritten by your code anyway. There may be issues if you generate a single VAO and treat it like the default VAO of older OpenGL versions. You should assume that after any gltext::Font function is called, including the constructor, that any and all of these states have changed to the following values:
 
@@ -12,6 +18,6 @@ gltext makes some changes to the GL state as it renders. In most applications, t
   * UNPACK_ROW_LENGTH is set to an arbitrary value
 
 TODO:
-  * Fix the build on windows
+  * Verify the build on windows
   * Add some sort of line-splitting algorithm
   * Expose language and script settings from HarfBuzz
