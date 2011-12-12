@@ -1,5 +1,16 @@
 gltext provides a text-rendering library compatible with modern (core profile) OpenGL implementations.
 
+USAGE NOTES:
+
+gltext makes some changes to the GL state as it renders. In most applications, these states will probably be overwritten by your code anyway. There may be issues if you generate a single VAO and treat it like the default VAO of older OpenGL versions. You should assume that after any gltext::Font function is called, including the constructor, that any and all of these states have changed to the following values:
+
+  * VERTEX_ARRAY_BINDING is set to the VAO for the given font
+  * CURRENT_PROGRAM is set to the shared text-drawing shader program
+  * ACTIVE_TEXTURE is set to TEXTURE0
+  * TEXTURE_BINDING_2D is set to the Font's cache texture
+  * UNPACK_ALIGNMENT is set to 1
+  * UNPACK_ROW_LENGTH is set to an arbitrary value
+
 TODO:
   * Support changing the pen color for text
   * Fix the build on windows
