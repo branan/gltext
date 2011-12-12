@@ -23,16 +23,15 @@
  */
 
 #include "gltext.hpp"
-#include "harfbuzz/hb-ft.h"
 
 #include <assert.h>
 #include <math.h>
 #include <map>
 
-#include "gl3.h"
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <GL/gl.h>
 
 static void* glPointer(const char* funcname) {
     return (void*)wglGetProcAddress(funcname);
@@ -44,6 +43,10 @@ static void* glPointer(const char* funcname) {
     return (void*)glXGetProcAddress((GLubyte*)funcname);
 }
 #endif
+
+// These need to be included after the windows stuff
+#include "gl3.h"
+#include "harfbuzz/hb-ft.h"
 
 #define GLYPH_VERT_SIZE (4*4*sizeof(GLfloat))
 #define GLYPH_IDX_SIZE (6*sizeof(GLushort))
@@ -88,6 +91,7 @@ void main() {\n\
 }\n\
 ";
 
+static PFNGLACTIVETEXTUREPROC gltextActiveTexture;
 static PFNGLGENVERTEXARRAYSPROC gltextGenVertexArrays;
 static PFNGLBINDVERTEXARRAYPROC gltextBindVertexArray;
 static PFNGLDELETEVERTEXARRAYSPROC gltextDeleteVertexArrays;
@@ -113,6 +117,7 @@ static PFNGLGETUNIFORMLOCATIONPROC gltextGetUniformLocation;
 static PFNGLBINDATTRIBLOCATIONPROC gltextBindAttribLocation;
 
 static void initGlPointers() {
+    gltextActiveTexture = (PFNGLACTIVETEXTUREPROC)glPointer("glActiveTexture");
     gltextGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)glPointer("glGenVertexArrays");
     gltextBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)glPointer("glBindVertexArray");
     gltextDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)glPointer("glDeleteVertexArrays");
@@ -253,7 +258,7 @@ struct FontPimpl {
         gltextVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
         gltextVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (GLvoid*)(2*sizeof(float)));
         
-        glActiveTexture(GL_TEXTURE0);
+        gltextActiveTexture(GL_TEXTURE0);
         glGenTextures(1, &tex);
         glBindTexture(GL_TEXTURE_2D, tex);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, cache_w, cache_h, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
@@ -428,7 +433,7 @@ void Font::cacheCharacters(std::string chars) {
     hb_glyph_info_t* glyphs = hb_buffer_get_glyph_infos(buffer, 0);
     hb_glyph_position_t* positions = hb_buffer_get_glyph_positions(buffer, 0);
 
-    glActiveTexture(GL_TEXTURE0);
+    gltextActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, self->tex);
     gltextBindVertexArray(self->vao);
 
@@ -454,7 +459,7 @@ void Font::draw(std::string text) {
     hb_glyph_info_t* glyphs = hb_buffer_get_glyph_infos(buffer, 0);
     hb_glyph_position_t* positions = hb_buffer_get_glyph_positions(buffer, 0);
 
-    glActiveTexture(GL_TEXTURE0);
+    gltextActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, self->tex);
     gltextBindVertexArray(self->vao);
     gltextUseProgram(FontSystem::instance().prog);

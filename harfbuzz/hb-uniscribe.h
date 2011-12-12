@@ -30,7 +30,7 @@
 #include "hb-common.h"
 #include "hb-shape.h"
 
-#define _WIN32_WINNT 0x0500
+#define _WIN32_WINNT 0x0600
 #include <windows.h>
 
 HB_BEGIN_DECLS

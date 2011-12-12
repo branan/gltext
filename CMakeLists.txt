@@ -87,13 +87,16 @@ if(GRAPHITE2_FOUND)
 endif()
 
 if(UNISCRIBE_FOUND)
-  set(HB_SOURCES ${HB_SOURCES}
-    harfbuzz/hb-uniscribe.cc
+  option(GLTEXT_USE_UNISCRIBE "Enable uniscribe. This will cause gltext and your application to require Windows Vista or newer" FALSE)
+  if(GLTEXT_USE_UNISCRIBE)
+    set(HB_SOURCES ${HB_SOURCES}
+      harfbuzz/hb-uniscribe.cc
 
-    harfbuzz/hb-uniscribe.h
-  )
-  set(HB_EXTRA_LIBS ${UNISCRIBE_LIBRARY})
-  add_definitions(-DHAVE_UNISCRIBE=1)
+      harfbuzz/hb-uniscribe.h
+    )
+    set(HB_EXTRA_LIBS ${UNISCRIBE_LIBRARY})
+    add_definitions(-DHAVE_UNISCRIBE=1)
+  endif()
 endif()
 
 add_library(gltext ${GLTEXT_SOURCES} ${GLTEXT_HEADERS} ${HB_SOURCES})
