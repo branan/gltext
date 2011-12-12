@@ -46,8 +46,38 @@
       Library to render text using modern OpenGL techniques
     </div>
 
+    <h2>Example Usage</h2>
+<pre>#include "gltext.hpp"
+
+#include <GL/glut.h>
+
+gltext::Font font;
+
+void render(void) {
+    glClear(GL_COLOR_BUFFER_BIT);
+    font.setPenPosition(16, 16);
+    font.draw("Hello, gltext!");
+    glutSwapBuffers();
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE|GLUT_DEPTH);
+    glutInitWindowPosition(0, 0);
+    glutInitWindowSize(300, 300);
+    glutCreateWindow("gltext demo");
+    glutDisplayFunc(render);
+
+    font = gltext::Font("/home/branan/projects/coredump/vfx/droid.ttf", 16, 128);
+    font.setDisplaySize(300, 300);
+    font.cacheCharacters("1234567890!@#$%^&*()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,./;'[]\\<>?:\"{}|-=_+");
+
+    glutMainLoop();
+}</pre>
+
       <h2>Authors</h2>
-      <p>Branan Purvine-Riley (branan@gmail.com)<br/>      </p>
+      <p>Branan Purvine-Riley (branan@gmail.com)
+<br/>      </p>
     
     <h2>Download</h2>
     <p>
