@@ -69,6 +69,7 @@ public:
 
     void setDisplaySize(unsigned w, unsigned h);
     void setPenPosition(unsigned x, unsigned y);
+    void setPenColor(float r, float g, float b);
     void cacheCharacters(std::string chars);
     void draw(std::string text);
 private:

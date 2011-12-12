@@ -80,9 +80,11 @@ in vec2 c;\n\
 out vec4 col;\n\
 \n\
 uniform sampler2D tex;\n\
+uniform vec3 color;\n\
 \n\
 void main() {\n\
-    col = texture(tex, c).rrrr;\n\
+    float val = texture(tex, c).r;\n\
+    col = vec4(color*val, val);\n\
 }\n\
 ";
 
@@ -106,6 +108,7 @@ static PFNGLLINKPROGRAMPROC gltextLinkProgram;
 static PFNGLUSEPROGRAMPROC gltextUseProgram;
 static PFNGLUNIFORM2IPROC gltextUniform2i;
 static PFNGLUNIFORM1IPROC gltextUniform1i;
+static PFNGLUNIFORM3FPROC gltextUniform3f;
 static PFNGLGETUNIFORMLOCATIONPROC gltextGetUniformLocation;
 static PFNGLBINDATTRIBLOCATIONPROC gltextBindAttribLocation;
 
@@ -130,6 +133,7 @@ static void initGlPointers() {
     gltextUseProgram = (PFNGLUSEPROGRAMPROC)glPointer("glUseProgram");
     gltextUniform2i = (PFNGLUNIFORM2IPROC)glPointer("glUniform2i");
     gltextUniform1i = (PFNGLUNIFORM1IPROC)glPointer("glUniform1i");
+    gltextUniform3f = (PFNGLUNIFORM3FPROC)glPointer("glUniform3f");
     gltextGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)glPointer("glGetUniformLocation");
     gltextBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)glPointer("glBindAttribLocation");
 }
@@ -160,6 +164,7 @@ public:
         gltextUniform1i(gltextGetUniformLocation(prog, "tex"), 0);
         scale_loc = gltextGetUniformLocation(prog, "s");
         pos_loc = gltextGetUniformLocation(prog, "p");
+        col_loc = gltextGetUniformLocation(prog, "color");
     }
     ~FontSystem() {
         FT_Done_FreeType(library);
@@ -171,6 +176,7 @@ public:
     GLuint prog;
     GLuint scale_loc;
     GLuint pos_loc;
+    GLuint col_loc;
 };
 
 
@@ -206,6 +212,8 @@ struct FontPimpl {
 
     unsigned cache_w, cache_h;
 
+    float pen_r, pen_g, pen_b;
+
     std::map<FT_UInt, GlyphInfo> glyphs;
     
     void init() {
@@ -234,6 +242,7 @@ struct FontPimpl {
     
         pen_x = 0;
         pen_y = 0;
+        pen_r = pen_g = pen_b = 1.0f;
         
         short max_glyphs = (cache_w / x_size)*(cache_h / y_size);
         
@@ -404,6 +413,15 @@ void Font::setPenPosition(unsigned x, unsigned y) {
     self->pen_y = y;
 }
 
+void Font::setPenColor(float r, float g, float b) {
+    if(!self)
+        throw EmptyFontException();
+    self->pen_r = r;
+    self->pen_g = g;
+    self->pen_b = b;
+}
+
+
 void Font::cacheCharacters(std::string chars) {
     if(!self)
         throw EmptyFontException();
@@ -447,6 +465,7 @@ void Font::draw(std::string text) {
     gltextBindVertexArray(self->vao);
     gltextUseProgram(FontSystem::instance().prog);
     gltextUniform2i(FontSystem::instance().scale_loc, self->window_w, self->window_h);
+    gltextUniform3f(FontSystem::instance().col_loc, self->pen_r, self->pen_g, self->pen_b);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
