@@ -40,7 +40,6 @@ set(HB_SOURCES
     harfbuzz/hb-ot-tag.cc
     harfbuzz/hb-private.hh
     harfbuzz/hb-shape.cc
-    harfbuzz/hb-tt-font.cc
     harfbuzz/hb-unicode-private.hh
     harfbuzz/hb-unicode.cc
 
