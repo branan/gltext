@@ -18,6 +18,5 @@ gltext makes some changes to the GL state as it renders. In most applications, t
   * UNPACK_ROW_LENGTH is set to an arbitrary value
 
 TODO:
-  * Verify the build on windows
   * Add some sort of line-splitting algorithm
   * Expose language and script settings from HarfBuzz
