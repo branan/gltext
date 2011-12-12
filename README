@@ -1,2 +1,8 @@
-gltext provides a text-rendering library compatible with modern (core 
-profile) OpenGL implementations.
+gltext provides a text-rendering library compatible with modern (core profile) OpenGL implementations.
+
+TODO:
+  * Support changing the pen color for text
+  * Fix the build on windows
+  * Fix demo to only build when requested
+  * Add some sort of line-splitting algorithm
+  * Expose language and script settings from HarfBuzz
