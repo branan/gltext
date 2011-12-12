@@ -420,9 +420,6 @@ void Font::cacheCharacters(std::string chars) {
     glBindTexture(GL_TEXTURE_2D, self->tex);
     gltextBindVertexArray(self->vao);
 
-    GLint pixel_store, row_length;
-    glGetIntegerv(GL_UNPACK_ALIGNMENT, &pixel_store);
-    glGetIntegerv(GL_UNPACK_ROW_LENGTH, &row_length);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     
     for(unsigned i = 0; i < len; i++) {
@@ -431,9 +428,6 @@ void Font::cacheCharacters(std::string chars) {
             self->cacheGlyph(glyphs[i].codepoint);
         }
     }
-    
-    glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_store);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, row_length);
 }
 
 void Font::draw(std::string text) {
@@ -454,9 +448,6 @@ void Font::draw(std::string text) {
     gltextUseProgram(FontSystem::instance().prog);
     gltextUniform2i(FontSystem::instance().scale_loc, self->window_w, self->window_h);
 
-    GLint pixel_store, row_length;
-    glGetIntegerv(GL_UNPACK_ALIGNMENT, &pixel_store);
-    glGetIntegerv(GL_UNPACK_ROW_LENGTH, &row_length);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     for(unsigned i = 0; i < len; i++) {
@@ -474,9 +465,6 @@ void Font::draw(std::string text) {
         self->pen_x += positions[i].x_advance >> 6;
         self->pen_y += positions[i].y_advance >> 6;
     }
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_store);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, row_length);
 }    
 
 }
