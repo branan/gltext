@@ -121,4 +121,4 @@ if(GLTEXT_DO_INSTALL)
     install(FILES ${GLTEXT_HEADERS} DESTINATION include)
 endif()
 
-source_group("harbuzz" ${HB_SOURCES})
+source_group("harbuzz" FILES ${HB_SOURCES})
