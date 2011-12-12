@@ -182,12 +182,6 @@ public:
 
 namespace gltext {
     
-struct GlyphInfo {
-    unsigned glyph;
-    unsigned left;
-    unsigned top;
-};
-
 struct FontPimpl {
     std::string filename;
     unsigned size;
@@ -214,7 +208,7 @@ struct FontPimpl {
 
     float pen_r, pen_g, pen_b;
 
-    std::map<FT_UInt, GlyphInfo> glyphs;
+    std::map<FT_UInt, unsigned> glyphs;
     
     void init() {
         FontSystem& system = FontSystem::instance();
@@ -277,7 +271,7 @@ struct FontPimpl {
         gltextDeleteVertexArrays(1, &vao);
     }
 
-    std::map<FT_UInt, GlyphInfo>::iterator cacheGlyph(FT_UInt codepoint)
+    std::map<FT_UInt, unsigned>::iterator cacheGlyph(FT_UInt codepoint)
     {
         if(num_glyphs_cached == (cache_w / x_size)*(cache_h / y_size)) {
             throw CacheOverflowException();
@@ -302,24 +296,28 @@ struct FontPimpl {
             texpos_y += y_size;
         }
         glTexSubImage2D(GL_TEXTURE_2D, 0, texpos_x, texpos_y, face->glyph->bitmap.width, face->glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+    
+        float hori_offset = face->glyph->bitmap_left;
+        float vert_offset = face->glyph->bitmap_top - face->glyph->bitmap.rows;
+    
         GlyphVert corners[4];
         GlyphVert& bl = corners[0];
         GlyphVert& ul = corners[1];
         GlyphVert& br = corners[2];
         GlyphVert& ur = corners[3];
-        bl.x = 0.0f;
-        bl.y = 0.0f;
+        bl.x = 0.0f + hori_offset;
+        bl.y = 0.0f + vert_offset;
         bl.s = float(texpos_x)/float(cache_w);
         if(need_inverse_texcoords)
             bl.t = float(texpos_y+face->glyph->bitmap.rows)/float(cache_h);
         else
             bl.t = float(texpos_y)/float(cache_h);
-        br.x = face->glyph->bitmap.width;
-        br.y = 0.0f;
+        br.x = face->glyph->bitmap.width + hori_offset;
+        br.y = 0.0f + vert_offset;
         br.s = float(texpos_x+face->glyph->bitmap.width)/float(cache_w);
         br.t = bl.t;
-        ul.x = 0.0f;
-        ul.y = face->glyph->bitmap.rows;
+        ul.x = 0.0f + hori_offset;
+        ul.y = face->glyph->bitmap.rows + vert_offset;
         ul.s = bl.s;
         if(need_inverse_texcoords)
             ul.t = float(texpos_y)/float(cache_h);
@@ -334,12 +332,8 @@ struct FontPimpl {
         gltextBufferSubData(GL_ARRAY_BUFFER, (GLintptr)(num_glyphs_cached*GLYPH_VERT_SIZE), GLYPH_VERT_SIZE, corners);
         gltextBufferSubData(GL_ELEMENT_ARRAY_BUFFER, (GLintptr)(num_glyphs_cached*GLYPH_IDX_SIZE), GLYPH_IDX_SIZE, indices);
         texpos_x += x_size;
-        GlyphInfo info;
-        info.glyph = num_glyphs_cached;
-        info.left = face->glyph->bitmap_left;
-        info.top = face->glyph->bitmap_top - face->glyph->bitmap.rows;
         num_glyphs_cached++;
-        return glyphs.insert(std::make_pair(codepoint, info)).first;
+        return glyphs.insert(std::make_pair(codepoint, num_glyphs_cached-1)).first;
     }
 };
 
@@ -441,7 +435,7 @@ void Font::cacheCharacters(std::string chars) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     
     for(unsigned i = 0; i < len; i++) {
-        std::map<FT_UInt, GlyphInfo>::iterator g = self->glyphs.find(glyphs[i].codepoint);
+        std::map<FT_UInt, unsigned>::iterator g = self->glyphs.find(glyphs[i].codepoint);
         if(g == self->glyphs.end()) {
             self->cacheGlyph(glyphs[i].codepoint);
         }
@@ -470,16 +464,14 @@ void Font::draw(std::string text) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     for(unsigned i = 0; i < len; i++) {
-        std::map<FT_UInt, GlyphInfo>::iterator g = self->glyphs.find(glyphs[i].codepoint);
+        std::map<FT_UInt, unsigned>::iterator g = self->glyphs.find(glyphs[i].codepoint);
         if(g == self->glyphs.end()) {
             g = self->cacheGlyph(glyphs[i].codepoint);
         }
 
-        unsigned glyph = g->second.glyph;
-        int left = g->second.left;
-        int top = g->second.top;
+        unsigned glyph = g->second;
         
-        gltextUniform2i(FontSystem::instance().pos_loc, self->pen_x+positions[i].x_offset+left, self->pen_y+positions[i].y_offset+top);
+        gltextUniform2i(FontSystem::instance().pos_loc, self->pen_x+positions[i].x_offset, self->pen_y+positions[i].y_offset);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (GLvoid*)(glyph*GLYPH_IDX_SIZE));
         self->pen_x += positions[i].x_advance >> 6;
         self->pen_y += positions[i].y_advance >> 6;
