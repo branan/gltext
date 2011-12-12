@@ -43,9 +43,7 @@ set(HB_SOURCES
     harfbuzz/hb-tt-font.cc
     harfbuzz/hb-unicode-private.hh
     harfbuzz/hb-unicode.cc
-)
 
-set(HB_HEADERS
     harfbuzz/hb.h
     harfbuzz/hb-blob.h
     harfbuzz/hb-buffer.h
@@ -101,7 +99,7 @@ if(UNISCRIBE_FOUND)
   add_definitions(-DHAVE_UNISCRIBE=1)
 endif()
 
-add_library(gltext ${GLTEXT_SOURCES} ${GLTEXT_HEADERS} ${HB_SOURCES} ${HB_HEADERS})
+add_library(gltext ${GLTEXT_SOURCES} ${GLTEXT_HEADERS} ${HB_SOURCES})
 
 if(GLUT_FOUND)
     option(GLTEXT_BUILD_DEMO_TEST "Build the demo 'test' program" FALSE)
@@ -122,3 +120,5 @@ if(GLTEXT_DO_INSTALL)
     install(TARGETS gltext DESTINATION lib)
     install(FILES ${GLTEXT_HEADERS} DESTINATION include)
 endif()
+
+source_group("harbuzz" ${HB_SOURCES})
