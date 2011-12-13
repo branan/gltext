@@ -238,10 +238,6 @@ struct FontPimpl {
         texpos_x = 0;
         texpos_y = 0;
         num_glyphs_cached = 0;
-    
-        pen_x = 0;
-        pen_y = 0;
-        pen_r = pen_g = pen_b = 1.0f;
         
         short max_glyphs = (cache_w / x_size)*(cache_h / y_size);
         
@@ -348,6 +344,11 @@ Font::Font(std::string font_file, unsigned size, unsigned cache_w, unsigned cach
     self->size = size;
     self->cache_w = cache_w;
     self->cache_h = cache_h;
+
+    // These are initialized here so that they work correctly when a font is de-inited and re-inited
+    self->pen_x = 0;
+    self->pen_y = 0;
+    self->pen_r = self->pen_g = self->pen_b = 1.0f;
     try {
         self->init();
     } catch(Exception&) {
@@ -420,6 +421,13 @@ void Font::setPenColor(float r, float g, float b) {
     self->pen_b = b;
 }
 
+void Font::setPointSize(unsigned int size) {
+    // TODO: implement this in a slightly more performant fashion
+    self->cleanup();
+    self->size = size;
+    self->glyphs.clear();
+    self->init();
+}
 
 void Font::cacheCharacters(std::string chars) {
     if(!self)

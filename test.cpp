@@ -7,12 +7,14 @@ gltext::Font font;
 void render(void) {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    font.setPenPosition(16, 16);
+    font.setPenPosition(16, 32);
     font.setPenColor(1.0, 1.0, 1.0);
+    font.setPointSize(32);
     font.draw("Hello, gltext!");
 
-    font.setPenPosition(16, 48);
+    font.setPenPosition(16, 16);
     font.setPenColor(1.0, 0.0, 0.0);
+    font.setPointSize(12);
     font.draw("Hello, RedText!");
 
     glutSwapBuffers();

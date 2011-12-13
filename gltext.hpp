@@ -138,6 +138,13 @@ public:
     void setPenColor(float r, float g, float b);
 
     /**
+     * @brief change the font size
+     * This function will cause the font cache to be cleared.
+     * @param[in] size The new font size
+     */
+    void setPointSize(unsigned size);
+
+    /**
      * @brief load some characters into the cache
      * 
      * This function allows you to pre-load the cache with a set of common characters. When this is done,
