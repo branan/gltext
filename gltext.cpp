@@ -372,6 +372,8 @@ Font::Font(const Font& rhs) {
     *this = rhs;
 }
 
+#define COPY_VAL(val) self->val = rhs.self->val
+
 Font& Font::operator=(const Font& rhs) {
     if(self) {
         self->cleanup();
@@ -381,14 +383,19 @@ Font& Font::operator=(const Font& rhs) {
             return *this;
         }
     } else {
+        if(!rhs.self)
+            return *this;
         self = new FontPimpl;
     }
-    self->filename = rhs.self->filename;
-    self->size =  rhs.self->size;
-    self->cache_w = rhs.self->cache_w;
-    self->cache_h = rhs.self->cache_h;
-    self->pen_x = rhs.self->pen_x;
-    self->pen_y = rhs.self->pen_y;
+    COPY_VAL(filename);
+    COPY_VAL(size);
+    COPY_VAL(cache_w);
+    COPY_VAL(cache_h);
+    COPY_VAL(pen_x);
+    COPY_VAL(pen_y);
+    COPY_VAL(pen_r);
+    COPY_VAL(pen_g);
+    COPY_VAL(pen_b);
     try {
         self->init();
     } catch(Exception&) {
