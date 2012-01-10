@@ -25,13 +25,18 @@
 #ifndef GLTEXT_FONT_HPP
 #define GLTEXT_FONT_HPP
 
+#define GLTEXT_USE_GLEW
+
+#ifndef GLTEXT_DISABLE_EXCEPTIONS
 #include <stdexcept>
+#endif
 #include <string>
 
 #define GLTEXT_CACHE_TEXTURE_SIZE 256
 
 namespace gltext {
 
+#ifndef GLTEXT_DISABLE_EXCEPTIONS
     /// The base class for all gltext exceptions
     class Exception : public std::runtime_error {
     public:
@@ -62,25 +67,30 @@ namespace gltext {
         BadFontFormatException() : Exception("The font glyphs are not in an appropriate bitmap format") {}
     };
 
+#define THROW(X) throw X();
+#else
+#define THROW(X) printf("Exception: %s in %s at %i\n", #X, __FILE__, __LINE__)
+#endif
+
 /// Internal structure for the Font class
 struct FontPimpl;
 
 /**
  * @brief Font loading and rendering
- * 
+ *
  * The Font class provides capabilities to load and render any font supported by Freetype. It uses an advanced
  * text layout system, to provide the correct glyph selection and positioning for internationalized text.
- * 
+ *
  * If the display size is set correctly, this class can provide pixel-perfect rendering. Setting the display size to
  * other values will not give correct results.
- * 
+ *
  * When drawing, this class will output pixels with pre-multiplied alpha. To blend them properly, set the blend mode to (GL_ONE, GL_SRC_ALPHA)
  */
 class Font {
 public:
     /**
      * @brief Create a new fully initialized font
-     * 
+     *
      * If any exceptions are thrown, the new Font object will be placed in the empty state, as if it were built with the default constructor.
      * @param[in] font_file The path to the requrested font file
      * @param[in] size The vertical size of the font, in pixels
@@ -94,14 +104,14 @@ public:
     Font();
     /**
      * @brief Copy constructor
-     * 
+     *
      * This provides a deep copy. A new font object is initialized from scatch, copying over only basic parameters from the source.
      * Importantly, a new cache buffer and texture are created for the new object. They are not shared with the source Font.
      */
     Font(const Font&);
     /**
      * @brief deep assignment
-     * 
+     *
      * This will clean up the corrent font if needed, then perform a new initialization based on basic parameters from the source.
      * Importantly, a new cache buffer and texture are created for this object. They are not shared with the source Font.
      */
@@ -109,14 +119,14 @@ public:
 
     /**
      * @brief cleanup
-     * 
+     *
      * Deletes all buffers, textures, and Freetype objects associated with this font
      */
     ~Font();
 
     /**
      * @brief Set the size of the display
-     * 
+     *
      * In order to provide pixel-perfect rendering, you must pass the actual size of the OpenGL viewport here.
      * @param[in] w The width of the OpenGL viewport, in pixels
      * @param[in] h The height of the OpenGL viewport, in pixels
@@ -125,7 +135,7 @@ public:
 
     /**
      * @brief Set the drawing position
-     * 
+     *
      * This is in OpenGL coordinates: 0,0 is the bottom-left corner
      * @param[in] x The horizontal drawing position
      * @param[in] y The vertical drawing position
@@ -146,29 +156,38 @@ public:
 
     /**
      * @brief load some characters into the cache
-     * 
+     *
      * This function allows you to pre-load the cache with a set of common characters. When this is done,
      * there will not be any need to render those characters at runtime.
-     * 
+     *
      * There is no requirement to call this function. Any character not found in the cache will be rendered
      * as-needed.
-     * 
+     *
      * Note that depending on the script, the order of the characters in this string might cause different glyphs
      * to be selectd for caching. This is especially of concern in indic and arabic scripts. If you want to cache
      * the correct glyphs in those scripts, you may have to pass your actual strings to this function, instead of
      * a dummy list of characters.
-     * 
+     *
      * @param[in] chars The characters to place in the cache.
      */
     void cacheCharacters(std::string chars);
 
     /**
      * @brief draw a line of text
-     * 
+     *
      * This function draws a single line of text. No line-splitting is performed - it is up to the application to provide that functionality if needed.
      * @param[in] text The string to draw
      */
     void draw(std::string text);
+
+	/**
+	 * @brief select shaders to render text
+	 *
+	 * This function overrides default gltext shaders
+	 * @param[in] vs Vertex shader file name
+	 * @param[in] fs Fragment shader file name
+	*/
+	static void setShaders(const char* vs, const char* fs);
 private:
     FontPimpl* self;
 };
@@ -177,7 +196,7 @@ private:
 
 /**
  * @mainpage gltext documentation
- * 
+ *
  * This is the documentation for the gltext library. The capabilities of this library are exposed through the gltext::Font class.
  */
 
