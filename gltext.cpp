@@ -143,20 +143,54 @@ static void initGlPointers() {
     gltextBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)glPointer("glBindAttribLocation");
 }
 
+static char* filetobuf(const char *file)
+{
+	if (file[0] == '0') return 0; //! TODO: remove this hack
+	FILE *fptr;
+	long length;
+	char *buf;
+	size_t unused = 0;
+
+	fptr = fopen(file, "r");
+	if (!fptr)
+		return NULL;
+	fseek(fptr, 0, SEEK_END);
+	length = ftell(fptr);
+	buf = (char*) malloc(length + 1);
+	fseek(fptr, 0, SEEK_SET);
+	unused = fread(buf, length, 1, fptr);
+	fclose(fptr);
+	buf[length] = 0;
+
+	return buf;
+}
+
 struct FontSystem {
 public:
-    static FontSystem& instance() {
-        static FontSystem singleton;
+
+    static FontSystem& instance(const char* vs = NULL, const char* fs = NULL) {
+		static FontSystem singleton(vs, fs);
         return singleton;
     }
 
-    FontSystem() {
+    FontSystem(const char* vert, const char* frag) {
         FT_Init_FreeType(&library);
         initGlPointers();
         fs = gltextCreateShader(GL_FRAGMENT_SHADER);
         vs = gltextCreateShader(GL_VERTEX_SHADER);
-        gltextShaderSource(fs, 1, &shader_frag, 0);
-        gltextShaderSource(vs, 1, &shader_vert, 0);
+		if (vert && frag) {
+			char* vert_source = filetobuf(vert);
+			char* frag_source = filetobuf(frag);
+			if (vert_source && frag_source) {
+				gltextShaderSource(vs, 1, (const GLchar**)&vert_source, 0);
+				gltextShaderSource(fs, 1, (const GLchar**)&frag_source, 0);
+				free(vert_source);
+				free(frag_source);
+			}
+		} else {
+			gltextShaderSource(fs, 1, &shader_frag, 0);
+			gltextShaderSource(vs, 1, &shader_vert, 0);
+		}
         gltextCompileShader(fs);
         gltextCompileShader(vs);
         prog = gltextCreateProgram();
@@ -504,6 +538,11 @@ void Font::draw(std::string text) {
         self->pen_x += positions[i].x_advance >> 6;
         self->pen_y += positions[i].y_advance >> 6;
     }
+}
+
+void Font::setShaders(const char *vs, const char *fs)
+{
+	FontSystem::instance(vs, fs);
 }
 
 }

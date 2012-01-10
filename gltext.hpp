@@ -25,6 +25,8 @@
 #ifndef GLTEXT_FONT_HPP
 #define GLTEXT_FONT_HPP
 
+#define GLTEXT_USE_GLEW
+
 #ifndef GLTEXT_DISABLE_EXCEPTIONS
 #include <stdexcept>
 #endif
@@ -177,6 +179,15 @@ public:
      * @param[in] text The string to draw
      */
     void draw(std::string text);
+
+	/**
+	 * @brief select shaders to render text
+	 *
+	 * This function overrides default gltext shaders
+	 * @param[in] vs Vertex shader file name
+	 * @param[in] fs Fragment shader file name
+	*/
+	static void setShaders(const char* vs, const char* fs);
 private:
     FontPimpl* self;
 };
