@@ -28,6 +28,8 @@
 #include <math.h>
 #include <map>
 
+#include "gltextError.hpp"
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -149,7 +151,7 @@ public:
         static FontSystem singleton;
         return singleton;
     }
-    
+
     FontSystem() {
         FT_Init_FreeType(&library);
         initGlPointers();
@@ -186,7 +188,7 @@ public:
 
 
 namespace gltext {
-    
+
 struct FontPimpl {
     std::string filename;
     unsigned size;
@@ -214,33 +216,33 @@ struct FontPimpl {
     float pen_r, pen_g, pen_b;
 
     std::map<FT_UInt, unsigned> glyphs;
-    
+
     void init() {
         FontSystem& system = FontSystem::instance();
         FT_Error error;
         error = FT_New_Face(system.library, filename.c_str(), 0, &face);
         if(error) {
-            throw FtException();
+			Error::throwError<FtException>();
         }
         error = FT_Set_Pixel_Sizes(face, 0, size);
         if(error) {
             FT_Done_Face(face);
-            throw FtException();
+			Error::throwError<FtException>();
         }
-            
+
         font = hb_ft_font_create(face, 0);
-        
+
         double size_y = double(face->height) * double(face->size->metrics.y_ppem) / double(face->units_per_EM);
         double size_x = double(face->max_advance_width) * double(face->size->metrics.y_ppem) / double(face->units_per_EM);
         y_size = ceil(size_y);
         x_size = ceil(size_x);
-        
+
         texpos_x = 0;
         texpos_y = 0;
         num_glyphs_cached = 0;
-        
+
         short max_glyphs = (cache_w / x_size)*(cache_h / y_size);
-        
+
         gltextGenVertexArrays(1, &vao);
         gltextGenBuffers(1, &vbo);
         gltextGenBuffers(1, &ibo);
@@ -253,7 +255,7 @@ struct FontPimpl {
         gltextEnableVertexAttribArray(1);
         gltextVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
         gltextVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (GLvoid*)(2*sizeof(float)));
-        
+
         gltextActiveTexture(GL_TEXTURE0);
         glGenTextures(1, &tex);
         glBindTexture(GL_TEXTURE_2D, tex);
@@ -275,32 +277,32 @@ struct FontPimpl {
     std::map<FT_UInt, unsigned>::iterator cacheGlyph(FT_UInt codepoint)
     {
         if(num_glyphs_cached == (cache_w / x_size)*(cache_h / y_size)) {
-            throw CacheOverflowException();
+			Error::throwError<CacheOverflowException>();
         }
         FT_Error error;
         error = FT_Load_Glyph(face, codepoint, FT_LOAD_RENDER);
         if(error) {
-            throw FtException();
+			Error::throwError<FtException>();
         }
         if(face->glyph->bitmap.pixel_mode != FT_PIXEL_MODE_GRAY) {
-            throw BadFontFormatException();
+			Error::throwError<BadFontFormatException>();
         }
         int pitch = face->glyph->bitmap.pitch;
         bool need_inverse_texcoords = true;
         if(pitch < 0) {
             pitch = -pitch;
             need_inverse_texcoords = false;
-        } 
+        }
         glPixelStorei(GL_UNPACK_ROW_LENGTH, pitch);
         if(texpos_x + face->glyph->bitmap.width > cache_w) {
             texpos_x = 0;
             texpos_y += y_size;
         }
         glTexSubImage2D(GL_TEXTURE_2D, 0, texpos_x, texpos_y, face->glyph->bitmap.width, face->glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
-    
+
         float hori_offset = face->glyph->bitmap_left;
         float vert_offset = face->glyph->bitmap_top - face->glyph->bitmap.rows;
-    
+
         GlyphVert corners[4];
         GlyphVert& bl = corners[0];
         GlyphVert& ul = corners[1];
@@ -349,6 +351,9 @@ Font::Font(std::string font_file, unsigned size, unsigned cache_w, unsigned cach
     self->pen_x = 0;
     self->pen_y = 0;
     self->pen_r = self->pen_g = self->pen_b = 1.0f;
+#ifdef GLTEXT_NO_EXCEPTIONS
+	self->init();
+#else
     try {
         self->init();
     } catch(Exception&) {
@@ -356,6 +361,7 @@ Font::Font(std::string font_file, unsigned size, unsigned cache_w, unsigned cach
         self = 0;
         throw;
     }
+#endif
 }
 
 Font::Font()
@@ -396,6 +402,9 @@ Font& Font::operator=(const Font& rhs) {
     COPY_VAL(pen_r);
     COPY_VAL(pen_g);
     COPY_VAL(pen_b);
+#ifdef GLTEXT_NO_EXCEPTIONS
+	self->init();
+#else
     try {
         self->init();
     } catch(Exception&) {
@@ -403,26 +412,27 @@ Font& Font::operator=(const Font& rhs) {
         self = 0;
         throw;
     }
+#endif
     return *this;
 }
 
 void Font::setDisplaySize(unsigned w, unsigned h) {
     if(!self)
-        throw EmptyFontException();
+		Error::throwError<EmptyFontException>();
     self->window_w = w;
     self->window_h = h;
 }
 
 void Font::setPenPosition(unsigned x, unsigned y) {
     if(!self)
-        throw EmptyFontException();
+		Error::throwError<EmptyFontException>();
     self->pen_x = x;
     self->pen_y = y;
 }
 
 void Font::setPenColor(float r, float g, float b) {
     if(!self)
-        throw EmptyFontException();
+		Error::throwError<EmptyFontException>();
     self->pen_r = r;
     self->pen_g = g;
     self->pen_b = b;
@@ -438,12 +448,12 @@ void Font::setPointSize(unsigned int size) {
 
 void Font::cacheCharacters(std::string chars) {
     if(!self)
-        throw EmptyFontException();
+		Error::throwError<EmptyFontException>();
     hb_buffer_t* buffer = hb_buffer_create();
     hb_buffer_set_direction(buffer, HB_DIRECTION_LTR);
     hb_buffer_add_utf8(buffer, chars.c_str(), chars.size(), 0, chars.size());
     hb_shape(self->font, buffer, NULL, 0);
-    
+
     unsigned len = hb_buffer_get_length(buffer);
     hb_glyph_info_t* glyphs = hb_buffer_get_glyph_infos(buffer, 0);
     hb_glyph_position_t* positions = hb_buffer_get_glyph_positions(buffer, 0);
@@ -453,7 +463,7 @@ void Font::cacheCharacters(std::string chars) {
     gltextBindVertexArray(self->vao);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    
+
     for(unsigned i = 0; i < len; i++) {
         std::map<FT_UInt, unsigned>::iterator g = self->glyphs.find(glyphs[i].codepoint);
         if(g == self->glyphs.end()) {
@@ -464,7 +474,7 @@ void Font::cacheCharacters(std::string chars) {
 
 void Font::draw(std::string text) {
     if(!self)
-        throw EmptyFontException();
+		Error::throwError<EmptyFontException>();
     hb_buffer_t* buffer = hb_buffer_create();
     hb_buffer_set_direction(buffer, HB_DIRECTION_LTR);
     hb_buffer_add_utf8(buffer, text.c_str(), text.size(), 0, text.size());
@@ -490,12 +500,12 @@ void Font::draw(std::string text) {
         }
 
         unsigned glyph = g->second;
-        
+
         gltextUniform2i(FontSystem::instance().pos_loc, self->pen_x+positions[i].x_offset, self->pen_y+positions[i].y_offset);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (GLvoid*)(glyph*GLYPH_IDX_SIZE));
         self->pen_x += positions[i].x_advance >> 6;
         self->pen_y += positions[i].y_advance >> 6;
     }
-}    
+}
 
 }
