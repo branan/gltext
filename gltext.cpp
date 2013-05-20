@@ -92,6 +92,7 @@ void main() {\n\
 ";
 
 static PFNGLACTIVETEXTUREPROC gltextActiveTexture;
+static PFNGLBINDSAMPLERPROC gltextBindSampler;
 static PFNGLGENVERTEXARRAYSPROC gltextGenVertexArrays;
 static PFNGLBINDVERTEXARRAYPROC gltextBindVertexArray;
 static PFNGLDELETEVERTEXARRAYSPROC gltextDeleteVertexArrays;
@@ -118,6 +119,7 @@ static PFNGLBINDATTRIBLOCATIONPROC gltextBindAttribLocation;
 
 static void initGlPointers() {
     gltextActiveTexture = (PFNGLACTIVETEXTUREPROC)glPointer("glActiveTexture");
+    gltextBindSampler = (PFNGLBINDSAMPLERPROC)glPointer("glBindSampler");
     gltextGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)glPointer("glGenVertexArrays");
     gltextBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)glPointer("glBindVertexArray");
     gltextDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)glPointer("glDeleteVertexArrays");
@@ -476,6 +478,7 @@ void Font::draw(std::string text) {
 
     gltextActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, self->tex);
+    gltextBindSampler(0, 0);
     gltextBindVertexArray(self->vao);
     gltextUseProgram(FontSystem::instance().prog);
     gltextUniform2i(FontSystem::instance().scale_loc, self->window_w, self->window_h);
