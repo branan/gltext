@@ -478,7 +478,9 @@ void Font::draw(std::string text) {
 
     gltextActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, self->tex);
-    gltextBindSampler(0, 0);
+    if (gltextBindSampler) {
+        gltextBindSampler(0, 0);
+    }
     gltextBindVertexArray(self->vao);
     gltextUseProgram(FontSystem::instance().prog);
     gltextUniform2i(FontSystem::instance().scale_loc, self->window_w, self->window_h);
