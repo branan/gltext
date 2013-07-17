@@ -14,6 +14,7 @@ gltext makes some changes to the GL state as it renders. In most applications, t
   * CURRENT_PROGRAM is set to the shared text-drawing shader program
   * ACTIVE_TEXTURE is set to TEXTURE0
   * TEXTURE_BINDING_2D is set to the Font's cache texture
+  * SAMPLER_BINDING is set to 0 for TEXTURE0 (OpenGL 3.3 and higher)
   * UNPACK_ALIGNMENT is set to 1
   * UNPACK_ROW_LENGTH is set to an arbitrary value
 
