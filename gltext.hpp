@@ -74,7 +74,7 @@ struct FontPimpl;
  * If the display size is set correctly, this class can provide pixel-perfect rendering. Setting the display size to
  * other values will not give correct results.
  * 
- * When drawing, this class will output pixels with pre-multiplied alpha. To blend them properly, set the blend mode to (GL_ONE, GL_SRC_ALPHA)
+ * When drawing, this class will output pixels with pre-multiplied alpha. To blend them properly, set the blend mode to (GL_ONE, GL_DST_ALPHA)
  */
 class Font {
 public:
