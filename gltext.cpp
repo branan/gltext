@@ -462,6 +462,7 @@ void Font::cacheCharacters(std::string chars) {
             self->cacheGlyph(glyphs[i].codepoint);
         }
     }
+    hb_buffer_destroy (buffer);
 }
 
 void Font::draw(std::string text) {
@@ -501,6 +502,7 @@ void Font::draw(std::string text) {
         self->pen_x += positions[i].x_advance >> 6;
         self->pen_y += positions[i].y_advance >> 6;
     }
+    hb_buffer_destroy (buffer);
 }    
 
 }
